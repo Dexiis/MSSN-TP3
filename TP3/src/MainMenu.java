@@ -1,11 +1,11 @@
-import Scenarios.*;
+import TP3.Scenarios.*;
 import processing.core.PApplet;
 
 public class MainMenu extends PApplet {
 
 	private String title = "Choose what to open:";
-	private String option1 = "-";
-	private String option2 = "Chaos Game";
+	private String option1 = "Chaos Game";
+	private String option2 = "-";
 	private String option3 = "-";
 	private String option4 = "-";
 	
@@ -49,9 +49,9 @@ public class MainMenu extends PApplet {
 		float h = 40;
 
 		if (checkButton(80, x, w, h)) {
-			//PApplet.main(SolarSystem.class);
-		} else if (checkButton(140, x, w, h)) {
 			PApplet.main(ChaosGame.class);
+		} else if (checkButton(140, x, w, h)) {
+			//PApplet.main(SolarSystem.class);
 		} else if (checkButton(200, x, w, h)) {
 			//PApplet.main(Flocking.class);
 		} else if (checkButton(260, x, w, h)) {
