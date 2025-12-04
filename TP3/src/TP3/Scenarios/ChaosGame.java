@@ -18,6 +18,8 @@ public class ChaosGame extends PApplet {
 	private boolean isPaused = false;
 	private float proportion = 0.5f;
 	private int speed = 1;
+	private float lastUpdateTime;
+	private float pointAccumulator = 0;
 
 	private final int DRAWING_AREA_WIDTH = 800;
 
@@ -26,6 +28,7 @@ public class ChaosGame extends PApplet {
 	}
 
 	public void setup() {
+		lastUpdateTime = millis();
 		background(255);
 
 		cp5 = new ControlP5(this);
@@ -58,6 +61,10 @@ public class ChaosGame extends PApplet {
 	}
 
 	public void draw() {
+		int now = millis();
+		float dt = (now - lastUpdateTime) / 1000f;
+		lastUpdateTime = now;
+
 		background(255);
 
 		stroke(150);
@@ -66,9 +73,14 @@ public class ChaosGame extends PApplet {
 
 		drawCoreElements();
 
-		if (!isPaused && corePoints.size() >= 3)
-			for (int k = 0; k < speed; k++)
+		if (!isPaused && corePoints.size() >= 3) {
+			pointAccumulator += speed * dt;
+			int pointsToGenerate = floor(pointAccumulator);
+			for (int k = 0; k < pointsToGenerate; k++)
 				generateNewChaosPoint();
+
+			pointAccumulator -= pointsToGenerate;
+		}
 
 		drawInnerPoints();
 
