@@ -10,7 +10,7 @@ import processing.core.PVector;
 public class LindenmayerSystems extends PApplet {
 
     private LSystem Lsystem;
-    private final double[] window = { -15, 15, 0, 15 };
+    private final double[] window = { -10, 10, 0, 10 };
     private final float[] viewport = { 0f, 0f, 1f, 1f };
     private final PVector startPos = new PVector(0, 0);
     private SubPlot plt;
@@ -34,13 +34,20 @@ public class LindenmayerSystems extends PApplet {
             ruleset[0] = new Rule('X', "F+[[X]-X]-F[-FX]+X");
             ruleset[1] = new Rule('F', "FF");
             axiom = "X";
-            angle = 22.5f;
-        } else {
+            angle = 22.5f; 
+            
+        } else if (choice == 2) {
             ruleset = new Rule[2];
             ruleset[0] = new Rule('F', "G[+F]-F");
             ruleset[1] = new Rule('G', "GG");
             axiom = "F";
             angle = 25.7f;
+            
+        } else {
+            ruleset = new Rule[1];
+            ruleset[0] = new Rule('F', "F[+F][-F]F");
+            axiom = "F";
+            angle = 22.5f; 
         }
 
         Lsystem = new LSystem(axiom, ruleset);
@@ -57,9 +64,17 @@ public class LindenmayerSystems extends PApplet {
         turtle.setPose(startPos, PApplet.radians(90), this, plt);
         turtle.render(Lsystem, this, plt);
     }
-
+    
     public void mousePressed() {
-        Lsystem.nextGen();
-        turtle.scaling(0.5f);
+        if (mouseButton == LEFT) {
+            Lsystem.nextGen();
+            turtle.scaling(0.5f);
+        } else if (mouseButton == RIGHT) {
+            choice++;
+            if (choice > 3) {
+                choice = 1;
+            }
+            setup();
+        }
     }
 }
