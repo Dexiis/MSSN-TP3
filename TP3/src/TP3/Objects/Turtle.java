@@ -1,5 +1,6 @@
-package CodigoDoStor;
-
+package TP3.Objects;
+import TP3.Core.SubPlot;
+import TP3.Logic.LSystem;
 import processing.core.PApplet;
 import processing.core.PVector;
 

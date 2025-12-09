@@ -1,4 +1,4 @@
-package CodigoDoStor;
+package TP3.Objects;
 
 public class Rule {
     private final char symbol;
