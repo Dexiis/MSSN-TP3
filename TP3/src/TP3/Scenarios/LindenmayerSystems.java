@@ -56,6 +56,10 @@ public class LindenmayerSystems extends PApplet {
 
 	public void draw() {
 		background(255);
+		fill(0);
+		textSize(14);
+		textAlign(LEFT);
+		text("Mudar de Modo: Botão direito", 10, 20);
 		float[] bb = plt.getBoundingBox();
 		noFill();
 		stroke(0);
@@ -63,6 +67,7 @@ public class LindenmayerSystems extends PApplet {
 
 		turtle.setPose(startPos, PApplet.radians(90), this, plt);
 		turtle.render(Lsystem, this, plt);
+		
 	}
 
 	public void mousePressed() {
