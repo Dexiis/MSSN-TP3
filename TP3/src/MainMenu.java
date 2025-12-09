@@ -6,7 +6,7 @@ public class MainMenu extends PApplet {
 	private String title = "Choose what to open:";
 	private String option1 = "Chaos Game";
 	private String option2 = "Lindenmayer Systems";
-	private String option3 = "-";
+	private String option3 = "JuliaMandelbrot";
 	private String option4 = "-";
 	
 	public void settings() {
@@ -53,7 +53,7 @@ public class MainMenu extends PApplet {
 		} else if (checkButton(140, x, w, h)) {
 			PApplet.main(LindenmayerSystems.class);
 		} else if (checkButton(200, x, w, h)) {
-			//PApplet.main(Flocking.class);
+			PApplet.main(JuliaMandelbrot.class);
 		} else if (checkButton(260, x, w, h)) {
 			//PApplet.main(NormandyLanding.class);
 		}
