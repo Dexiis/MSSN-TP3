@@ -5,16 +5,16 @@ import TP3.Objects.Rule;
 public class LSystem {
 	private String sequence;
 	private final Rule[] ruleset;
-	private int gen;
+	private int generation;
 
 	public LSystem(String axiom, Rule[] ruleset) {
 		sequence = axiom;
 		this.ruleset = ruleset;
-		gen = 0;
+		generation = 0;
 	}
 
 	public int getGen() {
-		return gen;
+		return generation;
 	}
 
 	public String getSequence() {
@@ -22,23 +22,23 @@ public class LSystem {
 	}
 
 	public void nextGen() {
-		gen++;
-		String nextGen = "";
+		generation++;
+		String nextGeneration = "";
 
 		for (int i = 0; i < sequence.length(); i++) {
 
 			char c = sequence.charAt(i);
 			String replace = "" + c;
 
-			for (Rule r : ruleset) {
-				if (c == r.getSymbol()) {
-					replace = r.getString();
+			for (Rule rule : ruleset) {
+				if (c == rule.getSymbol()) {
+					replace = rule.getString();
 					break;
 				}
 			}
-			nextGen += replace;
+			nextGeneration += replace;
 		}
 
-		this.sequence = nextGen;
+		this.sequence = nextGeneration;
 	}
 }

@@ -22,7 +22,7 @@ public class Point {
 		this.p = p;
 		this.corePoint = false;
 	}
-	
+
 	public PVector getPosition() {
 		return position;
 	}
