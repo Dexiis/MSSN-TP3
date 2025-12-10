@@ -20,6 +20,8 @@ public class ChaosGame extends PApplet {
 	private int speed = 1;
 	private float lastUpdateTime;
 	private float pointAccumulator = 0;
+	private int restrictionMode = 0;
+	private int previousIndex1, previousIndex2, previousIndex3 = -1;
 
 	private final int DRAWING_AREA_WIDTH = 800;
 
@@ -49,8 +51,8 @@ public class ChaosGame extends PApplet {
 
 		yStart += ySpacing;
 
-		cp5.addSlider("speed").setLabel("Velocidade (1 a 100 p/s)").setRange(1, 100).setValue(1)
-				.setPosition(xPos, yStart).setSize(160, 20).setNumberOfTickMarks(100).showTickMarks(false);
+		cp5.addSlider("speed").setLabel("Velocidade (1 a 500 p/s)").setRange(1, 500).setValue(1)
+				.setPosition(xPos, yStart).setSize(160, 20).setNumberOfTickMarks(500).showTickMarks(false);
 
 		yStart += ySpacing;
 
@@ -66,7 +68,6 @@ public class ChaosGame extends PApplet {
 		lastUpdateTime = now;
 
 		background(255);
-
 		stroke(150);
 		strokeWeight(1);
 		line(DRAWING_AREA_WIDTH, 0, DRAWING_AREA_WIDTH, height);
@@ -82,44 +83,41 @@ public class ChaosGame extends PApplet {
 			pointAccumulator -= pointsToGenerate;
 		}
 
-		drawInnerPoints();
+		for (Point p : innerPoints)
+			p.display();
 
 		drawInterfaceLabels();
 	}
 
-	public void drawCoreElements() {
-		if (corePoints.size() >= 3) {
-			stroke(0, 0, 255);
-			strokeWeight(2);
-
-			for (int i = 0; i < corePoints.size(); i++) {
-				PVector previousPosition = corePoints.get(i).getPosition();
-
-				int nextIndex;
-				if (i == corePoints.size() - 1)
-					nextIndex = 0;
-				else
-					nextIndex = i + 1;
-
-				PVector nextPosition = corePoints.get(nextIndex).getPosition();
-
-				line(previousPosition.x, previousPosition.y, nextPosition.x, nextPosition.y);
-			}
-		}
-
-		for (int i = 0; i < corePoints.size(); i++) {
-			Point p = corePoints.get(i);
-
-			if (i == editingPointIndex) {
-				stroke(0, 255, 0);
-				strokeWeight(12);
-				point(p.getPosition().x, p.getPosition().y);
-			} else
-				p.display();
+	public void generateNewChaosPoint() {
+		switch (restrictionMode) {
+		case 0:
+			noRestrictions();
+			break;
+		case 1:
+			restriction1();
+			break;
+		case 2:
+			restriction2();
+			break;
+		case 3:
+			restriction3();
+			break;
+		case 4:
+			restriction4();
+			break;
+		case 5:
+			restriction5();
+			break;
+		case 6:
+			restriction6();
+			break;
+		default:
+			break;
 		}
 	}
 
-	public void generateNewChaosPoint() {
+	public void noRestrictions() {
 		if (innerPoints.isEmpty()) {
 			int indexA = floor(random(corePoints.size()));
 			int indexB = floor(random(corePoints.size()));
@@ -155,10 +153,172 @@ public class ChaosGame extends PApplet {
 		innerPoints.add(newPoint);
 	}
 
-	public void drawInnerPoints() {
-		for (Point p : innerPoints) {
-			p.display();
+	public void restriction1() { // The current vertex cannot be the previous vertex
+		if (innerPoints.isEmpty()) {
+			int indexA = floor(random(corePoints.size()));
+			int indexB = floor(random(corePoints.size()));
+
+			while (corePoints.size() > 1 && indexB == indexA) {
+				indexB = floor(random(corePoints.size()));
+			}
+
+			Point pointA = corePoints.get(indexA);
+			Point pointB = corePoints.get(indexB);
+
+			PVector initialPosition = PVector.lerp(pointA.getPosition(), pointB.getPosition(), proportion);
+
+			int initialColour = pointB.getColour();
+
+			Point newInnerPoint = new Point(initialPosition, initialColour, this);
+			innerPoints.add(newInnerPoint);
+			return;
 		}
+
+		Point lastInnerPoint = innerPoints.get(innerPoints.size() - 1);
+		PVector lastPosition = lastInnerPoint.getPosition();
+
+		int targetIndex = floor(random(corePoints.size()));
+
+		while (previousIndex1 == targetIndex)
+			targetIndex = floor(random(corePoints.size()));
+		previousIndex1 = targetIndex;
+
+		Point targetVertex = corePoints.get(targetIndex);
+		PVector targetPosition = targetVertex.getPosition();
+
+		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
+
+		int newColour = targetVertex.getColour();
+
+		Point newPoint = new Point(newPosition, newColour, this);
+		innerPoints.add(newPoint);
+	}
+
+	public void restriction2() { // The current vertex cannot be any of the 3 previous vertexes
+		if (corePoints.size() < 4)
+			return;
+
+		if (innerPoints.isEmpty()) {
+			int indexA = floor(random(corePoints.size()));
+			int indexB = floor(random(corePoints.size()));
+
+			while (corePoints.size() > 1 && indexB == indexA) {
+				indexB = floor(random(corePoints.size()));
+			}
+
+			Point pointA = corePoints.get(indexA);
+			Point pointB = corePoints.get(indexB);
+
+			PVector initialPosition = PVector.lerp(pointA.getPosition(), pointB.getPosition(), proportion);
+
+			int initialColour = pointB.getColour();
+
+			Point newInnerPoint = new Point(initialPosition, initialColour, this);
+			innerPoints.add(newInnerPoint);
+			return;
+		}
+
+		Point lastInnerPoint = innerPoints.get(innerPoints.size() - 1);
+		PVector lastPosition = lastInnerPoint.getPosition();
+
+		int targetIndex = floor(random(corePoints.size()));
+
+		while (previousIndex1 == targetIndex || previousIndex2 == targetIndex || previousIndex3 == targetIndex)
+			targetIndex = floor(random(corePoints.size()));
+		previousIndex3 = previousIndex2;
+		previousIndex2 = previousIndex1;
+		previousIndex1 = targetIndex;
+
+		Point targetVertex = corePoints.get(targetIndex);
+		PVector targetPosition = targetVertex.getPosition();
+
+		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
+
+		int newColour = targetVertex.getColour();
+
+		Point newPoint = new Point(newPosition, newColour, this);
+		innerPoints.add(newPoint);
+	}
+
+	public void restriction3() { // The current vertex cannot be one place away clockwise from the previous
+									// vertex
+		// TODO
+	}
+
+	public void restriction4() { // The current vertex cannot be one place away from the previous vertex
+		// TODO
+	}
+
+	public void restriction5() { // The current vertex cannot be 2 places away counter clockwise from the
+									// previously chosen vertex
+		// TODO
+	}
+
+	public void restriction6() { // The current vertex cannot be 1 or 3 places from the two previously chosen
+									// vertices
+		// TODO
+	}
+
+	public void drawCoreElements() {
+		if (corePoints.size() >= 3) {
+			stroke(0, 0, 255);
+			strokeWeight(2);
+
+			for (int i = 0; i < corePoints.size(); i++) {
+				PVector previousPosition = corePoints.get(i).getPosition();
+
+				int nextIndex;
+				if (i == corePoints.size() - 1)
+					nextIndex = 0;
+				else
+					nextIndex = i + 1;
+
+				PVector nextPosition = corePoints.get(nextIndex).getPosition();
+
+				line(previousPosition.x, previousPosition.y, nextPosition.x, nextPosition.y);
+			}
+		}
+
+		for (int i = 0; i < corePoints.size(); i++) {
+			Point p = corePoints.get(i);
+
+			if (i == editingPointIndex) {
+				stroke(0, 255, 0);
+				strokeWeight(12);
+				point(p.getPosition().x, p.getPosition().y);
+			} else
+				p.display();
+		}
+	}
+
+	public void addNewPoint(Point newPoint) {
+		corePoints.add(newPoint);
+		reorderCorePoints();
+	}
+
+	public void reorderCorePoints() {
+		if (corePoints.size() < 3)
+			return;
+
+		PVector centroid = new PVector(0, 0);
+		for (Point p : corePoints) {
+			centroid.add(p.getPosition());
+		}
+		centroid.div(corePoints.size());
+
+		corePoints.sort((p1, p2) -> {
+			PVector pos1 = p1.getPosition();
+			PVector pos2 = p2.getPosition();
+
+			float angle1 = atan2(pos1.y - centroid.y, pos1.x - centroid.x);
+			float angle2 = atan2(pos2.y - centroid.y, pos2.x - centroid.x);
+
+			if (angle1 < angle2)
+				return -1;
+			if (angle1 > angle2)
+				return 1;
+			return 0;
+		});
 	}
 
 	public void drawInterfaceLabels() {
@@ -188,7 +348,7 @@ public class ChaosGame extends PApplet {
 		isPaused = !isPaused;
 	}
 
-	public void clearInnerPoints(int value) {
+	public void clearInnerPoints() {
 		innerPoints.clear();
 	}
 
@@ -197,7 +357,7 @@ public class ChaosGame extends PApplet {
 			if (mouseButton == LEFT) {
 				PVector newPosition = new PVector(mouseX, mouseY);
 				Point newCorePoint = new Point(newPosition, this);
-				corePoints.add(newCorePoint);
+				addNewPoint(newCorePoint);
 			} else if (mouseButton == RIGHT) {
 				if (corePoints.size() > 0)
 					editingPointIndex = corePoints.size() - 1;
@@ -235,5 +395,14 @@ public class ChaosGame extends PApplet {
 	public void mouseReleased() {
 		if (editingPointIndex != -1)
 			editingPointIndex = -1;
+	}
+
+	public void keyPressed() {
+		if (key == 'M' || key == 'm') {
+			restrictionMode++;
+			if (restrictionMode > 6)
+				restrictionMode = 0;
+			clearInnerPoints();
+		}
 	}
 }
