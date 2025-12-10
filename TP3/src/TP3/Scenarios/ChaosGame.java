@@ -144,7 +144,8 @@ public class ChaosGame extends PApplet {
 		int targetIndex = floor(random(corePoints.size()));
 		Point targetVertex = corePoints.get(targetIndex);
 		PVector targetPosition = targetVertex.getPosition();
-
+		
+		line(lastPosition.x, lastPosition.y , targetPosition.x, targetPosition.y);
 		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
 
 		int newColour = targetVertex.getColour();
@@ -261,7 +262,7 @@ public class ChaosGame extends PApplet {
 
 	public void drawCoreElements() {
 		if (corePoints.size() >= 3) {
-			stroke(0, 0, 255);
+			stroke(0, 0, 0);
 			strokeWeight(2);
 
 			for (int i = 0; i < corePoints.size(); i++) {

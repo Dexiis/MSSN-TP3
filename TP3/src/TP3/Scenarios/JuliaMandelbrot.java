@@ -26,7 +26,6 @@ public class JuliaMandelbrot extends PApplet {
 	}
 
 	public void setup() {
-		colorMode(HSB, 255);
 		noLoop();
 
 		pltJulia = new SubPlot(WINDOW_JULIA, VIEWPORT_JULIA, width, height);

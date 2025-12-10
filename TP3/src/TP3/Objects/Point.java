@@ -45,7 +45,7 @@ public class Point {
 		if (corePoint)
 			p.strokeWeight(10);
 		else
-			p.strokeWeight(2);
+			p.strokeWeight(3);
 
 		p.point(position.x, position.y);
 	}

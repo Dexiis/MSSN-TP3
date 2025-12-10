@@ -16,7 +16,7 @@ public class LindenmayerSystems extends PApplet {
 	private SubPlot plt;
 	private Turtle turtle;
 
-	private int choice = 2; // MUDAR MANUALMENTE
+	private int choice = 1; 
 
 	public void settings() {
 		size(800, 800);
