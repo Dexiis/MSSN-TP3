@@ -38,7 +38,7 @@ public class JuliaMandelbrot extends PApplet {
 
 		drawJuliaSet();
 		drawMandelbrotSet();
-		displayNewWindow();
+		
 		updatePixels();
 		
 		displayNewWindow();
