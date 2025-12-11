@@ -30,12 +30,12 @@ public class LSystem {
 			char c = sequence.charAt(i);
 			String replace = "" + c;
 
-			for (Rule rule : ruleset) {
+			for (Rule rule : ruleset)
 				if (c == rule.getSymbol()) {
 					replace = rule.getString();
 					break;
 				}
-			}
+
 			nextGeneration += replace;
 		}
 

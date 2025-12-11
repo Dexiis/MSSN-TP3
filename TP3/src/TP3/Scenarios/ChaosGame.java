@@ -11,10 +11,11 @@ public class ChaosGame extends PApplet {
 	private ArrayList<Point> corePoints = new ArrayList<>();
 	private ArrayList<Point> innerPoints = new ArrayList<>();
 
-	private int editingPointIndex = -1;
-	private final float CLICK_TOLERANCE = 15;
-
 	private ControlP5 cp5;
+
+	private PVector lastPositionLine, targetPositionLine;
+
+	private int editingPointIndex = -1;
 	private boolean isPaused = false;
 	private float proportion = 0.5f;
 	private int speed = 1;
@@ -24,6 +25,7 @@ public class ChaosGame extends PApplet {
 	private int previousIndex1, previousIndex2, previousIndex3 = -1;
 
 	private final int DRAWING_AREA_WIDTH = 800;
+	private final float CLICK_TOLERANCE = 15;
 
 	public void settings() {
 		size(1000, 800);
@@ -83,6 +85,12 @@ public class ChaosGame extends PApplet {
 			pointAccumulator -= pointsToGenerate;
 		}
 
+		if (lastPositionLine != null && targetPositionLine != null) {
+			strokeWeight(1);
+			stroke(0, 0, 0, 50);
+			line(lastPositionLine.x, lastPositionLine.y, targetPositionLine.x, targetPositionLine.y);
+		}
+
 		for (Point p : innerPoints)
 			p.display();
 
@@ -109,9 +117,6 @@ public class ChaosGame extends PApplet {
 		case 5:
 			restriction5();
 			break;
-		case 6:
-			restriction6();
-			break;
 		default:
 			break;
 		}
@@ -122,9 +127,8 @@ public class ChaosGame extends PApplet {
 			int indexA = floor(random(corePoints.size()));
 			int indexB = floor(random(corePoints.size()));
 
-			while (corePoints.size() > 1 && indexB == indexA) {
+			while (corePoints.size() > 1 && indexB == indexA)
 				indexB = floor(random(corePoints.size()));
-			}
 
 			Point pointA = corePoints.get(indexA);
 			Point pointB = corePoints.get(indexB);
@@ -144,14 +148,14 @@ public class ChaosGame extends PApplet {
 		int targetIndex = floor(random(corePoints.size()));
 		Point targetVertex = corePoints.get(targetIndex);
 		PVector targetPosition = targetVertex.getPosition();
-		
-		line(lastPosition.x, lastPosition.y , targetPosition.x, targetPosition.y);
+
 		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
-
 		int newColour = targetVertex.getColour();
-
 		Point newPoint = new Point(newPosition, newColour, this);
 		innerPoints.add(newPoint);
+
+		lastPositionLine = lastPosition;
+		targetPositionLine = targetPosition;
 	}
 
 	public void restriction1() { // The current vertex cannot be the previous vertex
@@ -159,17 +163,14 @@ public class ChaosGame extends PApplet {
 			int indexA = floor(random(corePoints.size()));
 			int indexB = floor(random(corePoints.size()));
 
-			while (corePoints.size() > 1 && indexB == indexA) {
+			while (corePoints.size() > 1 && indexB == indexA)
 				indexB = floor(random(corePoints.size()));
-			}
 
 			Point pointA = corePoints.get(indexA);
 			Point pointB = corePoints.get(indexB);
 
 			PVector initialPosition = PVector.lerp(pointA.getPosition(), pointB.getPosition(), proportion);
-
 			int initialColour = pointB.getColour();
-
 			Point newInnerPoint = new Point(initialPosition, initialColour, this);
 			innerPoints.add(newInnerPoint);
 			return;
@@ -186,13 +187,14 @@ public class ChaosGame extends PApplet {
 
 		Point targetVertex = corePoints.get(targetIndex);
 		PVector targetPosition = targetVertex.getPosition();
-
+		
 		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
-
 		int newColour = targetVertex.getColour();
-
 		Point newPoint = new Point(newPosition, newColour, this);
 		innerPoints.add(newPoint);
+
+		lastPositionLine = lastPosition;
+		targetPositionLine = targetPosition;
 	}
 
 	public void restriction2() { // The current vertex cannot be any of the 3 previous vertexes
@@ -203,9 +205,8 @@ public class ChaosGame extends PApplet {
 			int indexA = floor(random(corePoints.size()));
 			int indexB = floor(random(corePoints.size()));
 
-			while (corePoints.size() > 1 && indexB == indexA) {
+			while (corePoints.size() > 1 && indexB == indexA)
 				indexB = floor(random(corePoints.size()));
-			}
 
 			Point pointA = corePoints.get(indexA);
 			Point pointB = corePoints.get(indexB);
@@ -234,30 +235,149 @@ public class ChaosGame extends PApplet {
 		PVector targetPosition = targetVertex.getPosition();
 
 		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
-
 		int newColour = targetVertex.getColour();
-
 		Point newPoint = new Point(newPosition, newColour, this);
 		innerPoints.add(newPoint);
+
+		lastPositionLine = lastPosition;
+		targetPositionLine = targetPosition;
 	}
 
 	public void restriction3() { // The current vertex cannot be one place away clockwise from the previous
 									// vertex
-		// TODO
+		if (innerPoints.isEmpty()) {
+			int indexA = floor(random(corePoints.size()));
+			int indexB = floor(random(corePoints.size()));
+
+			while (corePoints.size() > 1 && indexB == indexA)
+				indexB = floor(random(corePoints.size()));
+
+			Point pointA = corePoints.get(indexA);
+			Point pointB = corePoints.get(indexB);
+
+			PVector initialPosition = PVector.lerp(pointA.getPosition(), pointB.getPosition(), proportion);
+			int initialColour = pointB.getColour();
+			Point newInnerPoint = new Point(initialPosition, initialColour, this);
+			innerPoints.add(newInnerPoint);
+			return;
+		}
+
+		Point lastInnerPoint = innerPoints.get(innerPoints.size() - 1);
+		PVector lastPosition = lastInnerPoint.getPosition();
+
+		int targetIndex = floor(random(corePoints.size()));
+		int indexCheck = previousIndex1 + 1;
+		if (indexCheck > corePoints.size())
+			indexCheck = 0;
+
+		while (indexCheck == targetIndex)
+			targetIndex = floor(random(corePoints.size()));
+		previousIndex1 = targetIndex;
+
+		Point targetVertex = corePoints.get(targetIndex);
+		PVector targetPosition = targetVertex.getPosition();
+
+		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
+		int newColour = targetVertex.getColour();
+		Point newPoint = new Point(newPosition, newColour, this);
+		innerPoints.add(newPoint);
+		
+		lastPositionLine = lastPosition;
+		targetPositionLine = targetPosition;
 	}
 
 	public void restriction4() { // The current vertex cannot be one place away from the previous vertex
-		// TODO
+		if (innerPoints.isEmpty()) {
+			int indexA = floor(random(corePoints.size()));
+			int indexB = floor(random(corePoints.size()));
+
+			while (corePoints.size() > 1 && indexB == indexA)
+				indexB = floor(random(corePoints.size()));
+
+			Point pointA = corePoints.get(indexA);
+			Point pointB = corePoints.get(indexB);
+			PVector initialPosition = PVector.lerp(pointA.getPosition(), pointB.getPosition(), proportion);
+
+			int initialColour = pointB.getColour();
+			Point newInnerPoint = new Point(initialPosition, initialColour, this);
+			innerPoints.add(newInnerPoint);
+			return;
+		}
+
+		Point lastInnerPoint = innerPoints.get(innerPoints.size() - 1);
+		PVector lastPosition = lastInnerPoint.getPosition();
+
+		int targetIndex = floor(random(corePoints.size()));
+		int indexCheck1 = previousIndex1 + 1;
+		int indexCheck2 = previousIndex1 - 1;
+		if (indexCheck1 > corePoints.size())
+			indexCheck1 = 0;
+		if (indexCheck2 < 0)
+			indexCheck2 = corePoints.size();
+
+		while (indexCheck1 == targetIndex || indexCheck2 == targetIndex)
+			targetIndex = floor(random(corePoints.size()));
+
+		previousIndex1 = targetIndex;
+
+		Point targetVertex = corePoints.get(targetIndex);
+		PVector targetPosition = targetVertex.getPosition();
+
+		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
+		int newColour = targetVertex.getColour();
+		Point newPoint = new Point(newPosition, newColour, this);
+		innerPoints.add(newPoint);
+
+		lastPositionLine = lastPosition;
+		targetPositionLine = targetPosition;
 	}
 
 	public void restriction5() { // The current vertex cannot be 2 places away counter clockwise from the
 									// previously chosen vertex
-		// TODO
-	}
+		if (innerPoints.isEmpty()) {
+			int indexA = floor(random(corePoints.size()));
+			int indexB = floor(random(corePoints.size()));
 
-	public void restriction6() { // The current vertex cannot be 1 or 3 places from the two previously chosen
-									// vertices
-		// TODO
+			while (corePoints.size() > 1 && indexB == indexA)
+				indexB = floor(random(corePoints.size()));
+
+			Point pointA = corePoints.get(indexA);
+			Point pointB = corePoints.get(indexB);
+			PVector initialPosition = PVector.lerp(pointA.getPosition(), pointB.getPosition(), proportion);
+
+			int initialColour = pointB.getColour();
+			Point newInnerPoint = new Point(initialPosition, initialColour, this);
+			innerPoints.add(newInnerPoint);
+			return;
+		}
+
+		Point lastInnerPoint = innerPoints.get(innerPoints.size() - 1);
+		PVector lastPosition = lastInnerPoint.getPosition();
+
+		int targetIndex = floor(random(corePoints.size()));
+		int indexCheck1 = previousIndex1 - 1;
+		int indexCheck2 = previousIndex1 - 2;
+		if (indexCheck1 < 0)
+			indexCheck1 = corePoints.size();
+		if (indexCheck2 == -1)
+			indexCheck2 = corePoints.size();
+		else if (indexCheck2 == -2)
+			indexCheck2 = corePoints.size() - 1;
+
+		while (indexCheck1 == targetIndex || indexCheck2 == targetIndex)
+			targetIndex = floor(random(corePoints.size()));
+		previousIndex1 = targetIndex;
+
+		Point targetVertex = corePoints.get(targetIndex);
+		PVector targetPosition = targetVertex.getPosition();
+
+		PVector newPosition = PVector.lerp(lastPosition, targetPosition, proportion);
+		int newColour = targetVertex.getColour();
+		Point newPoint = new Point(newPosition, newColour, this);
+		innerPoints.add(newPoint);
+
+		lastPositionLine = lastPosition;
+		targetPositionLine = targetPosition;
 	}
 
 	public void drawCoreElements() {
@@ -302,9 +422,9 @@ public class ChaosGame extends PApplet {
 			return;
 
 		PVector centroid = new PVector(0, 0);
-		for (Point p : corePoints) {
+		for (Point p : corePoints)
 			centroid.add(p.getPosition());
-		}
+
 		centroid.div(corePoints.size());
 
 		corePoints.sort((p1, p2) -> {
@@ -401,7 +521,7 @@ public class ChaosGame extends PApplet {
 	public void keyPressed() {
 		if (key == 'M' || key == 'm') {
 			restrictionMode++;
-			if (restrictionMode > 6)
+			if (restrictionMode > 5)
 				restrictionMode = 0;
 			clearInnerPoints();
 		}

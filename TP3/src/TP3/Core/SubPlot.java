@@ -38,7 +38,6 @@ public class SubPlot {
 		d[1] = (float) (-dimy * my);
 
 		return d;
-
 	}
 
 	public double[] getWorldCoord(double xx, double yy) {

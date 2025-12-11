@@ -8,7 +8,7 @@ public class MainMenu extends PApplet {
 	private String option2 = "Lindenmayer Systems";
 	private String option3 = "JuliaMandelbrot";
 	private String option4 = "-";
-	
+
 	public void settings() {
 		size(360, 300);
 	}
@@ -55,14 +55,13 @@ public class MainMenu extends PApplet {
 		} else if (checkButton(200, x, w, h)) {
 			PApplet.main(JuliaMandelbrot.class);
 		} else if (checkButton(260, x, w, h)) {
-			//PApplet.main(NormandyLanding.class);
+			// PApplet.main(NormandyLanding.class);
 		}
 	}
-	
+
 	private boolean checkButton(float buttonY, float x, float w, float h) {
-        return mouseX > x - w / 2 && mouseX < x + w / 2 && 
-               mouseY > buttonY - h / 2 && mouseY < buttonY + h / 2;
-    }
+		return mouseX > x - w / 2 && mouseX < x + w / 2 && mouseY > buttonY - h / 2 && mouseY < buttonY + h / 2;
+	}
 
 	public static void main(String[] args) {
 		PApplet.main(MainMenu.class.getName());
