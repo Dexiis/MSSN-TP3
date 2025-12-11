@@ -6,7 +6,7 @@ import processing.core.PApplet;
 
 public class JuliaMandelbrot extends PApplet {
 
-	private final int MAX_ITER = 256;
+	private final int MAX_ITER = 300;
 	private final double ESCAPE_RADIUS = 2.0;
 
 	private final double[] WINDOW_JULIA = { -1.5, 1.5, -1.5, 1.5 };
@@ -19,7 +19,7 @@ public class JuliaMandelbrot extends PApplet {
 
 	private Complex C_JULIA = new Complex(-0.7885, 0.140);
 
-	private boolean smoothColoring = true;
+	private float mx0, my0, mx1, my1;
 
 	public void settings() {
 		size(1500, 800);
@@ -38,8 +38,10 @@ public class JuliaMandelbrot extends PApplet {
 
 		drawJuliaSet();
 		drawMandelbrotSet();
-
+		displayNewWindow();
 		updatePixels();
+		
+		displayNewWindow();
 	}
 
 	private void drawJuliaSet() {
@@ -70,8 +72,6 @@ public class JuliaMandelbrot extends PApplet {
 				int col;
 				if (iter == MAX_ITER)
 					col = color(0);
-				else if (smoothColoring)
-					col = getColorSmooth(iter, Z.norm());
 				else
 					col = getColorBanded(iter);
 
@@ -89,10 +89,8 @@ public class JuliaMandelbrot extends PApplet {
 			for (int y = yStart; y < yEnd; y++) {
 
 				double[] crci = pltMandelbrot.getWorldCoord(x, y);
-				double cr = crci[0];
-				double ci = crci[1];
 
-				Complex C = new Complex(cr, ci);
+				Complex C = new Complex(crci);
 				Complex Z = new Complex(0, 0);
 
 				int iter = 0;
@@ -103,41 +101,83 @@ public class JuliaMandelbrot extends PApplet {
 					Z.add(C);
 					iter++;
 				}
-
 				int col;
 				if (iter == MAX_ITER)
 					col = color(0);
-				else if (smoothColoring)
-					col = getColorSmooth(iter, Z.norm());
 				else
 					col = getColorBanded(iter);
 
 				pixels[x + y * width] = col;
 			}
-
 	}
 
 	private int getColorBanded(int iter) {
-		int hue = (int) map(iter, 0, MAX_ITER, 0, 255);
-		return color(hue, 255, 255);
+		float t = (float) iter / MAX_ITER;
+		t = PApplet.pow(t, 0.4f);
+
+		float hue = 150;
+		float sat = 100;
+		float bri = PApplet.map(t, 0, 1, 30, 90);
+
+		int colour = color(hue, sat, bri);
+		colour = color((iter % 16) * 16);
+
+		return colour;
 	}
 
-	private int getColorSmooth(int iter, double norm) {
-		double logZn = Math.log(norm);
-		double logLogZn = Math.log(logZn);
-		double fractionalIter = iter + 1 - logLogZn / Math.log(2.0);
-
-		int hue = (int) map((float) fractionalIter, 0, MAX_ITER, 0, 255);
-
-		return color(hue, 255, 255);
+	private void displayNewWindow() {
+		pushStyle();
+		noFill();
+		strokeWeight(3);
+		stroke(255);
+		rect(mx0, my0, mx1 - mx0, my1 - my0);
+		popStyle();
 	}
 
 	public void mousePressed() {
-		if (mouseX > width / 2) {
-			double[] crci = pltMandelbrot.getWorldCoord(mouseX, mouseY);
-			C_JULIA = new Complex(crci[0], crci[1]);
-		}
-
-		redraw();
+		if (mouseX > width / 2)
+			if (mouseButton == LEFT) {
+				double[] crci = pltMandelbrot.getWorldCoord(mouseX, mouseY);
+				C_JULIA = new Complex(crci[0], crci[1]);
+				
+				redraw();
+			} else if (mouseButton == RIGHT) {
+				mx0 = mouseX;
+				my0 = mouseY;
+				
+				redraw();
+			}
 	}
+
+	public void mouseReleased() {
+		if (mouseX > width / 2)
+			if (mouseButton == RIGHT) {
+
+				double[] xy0 = pltMandelbrot.getWorldCoord(mx0, my0);
+				double[] xy1 = pltMandelbrot.getWorldCoord(mx1, my1);
+
+				double xmin = Math.min(xy0[0], xy1[0]);
+				double xmax = Math.max(xy0[0], xy1[0]);
+				double ymin = Math.min(xy0[1], xy1[1]);
+				double ymax = Math.max(xy0[1], xy1[1]);
+				double[] window = { xmin, xmax, ymin, ymax };
+
+				pltMandelbrot = new SubPlot(window, VIEWPORT_MANDELBROT, width, height);
+				
+				mx0 = my0 = mx1 = my1 = 0;
+
+				redraw();
+			}
+	}
+
+	public void mouseDragged() {
+		if (mouseX > width / 2)
+			if (mouseButton == RIGHT) {
+				mx1 = mouseX;
+				my1 = mouseY;
+
+				redraw();
+			}
+	}
+
 }
